@@ -1,3 +1,4 @@
+
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
@@ -9,49 +10,27 @@ dotenv.config();
 
 const seedAdmin = async () => {
    try {
-      // Connect MongoDB
+      if (!process.env.ADMIN_INITIAL_PASSWORD) {
+         throw new Error("ADMIN_INITIAL_PASSWORD is missing in server/.env");
+      }
+
       await connectDB();
 
-      const password = "Admin@12345";
-
-      // Hash password
-      const hashedPassword = await bcrypt.hash(password, 12);
-
-      // Check existing admin
       const existingAdmin = await User.findOne({
          userId: "ADM001",
       });
 
-      // =====================================================
-      // ADMIN ALREADY EXISTS
-      // =====================================================
-
       if (existingAdmin) {
-         existingAdmin.name = "School Administrator";
-         existingAdmin.userId = "ADM001";
-         existingAdmin.password = hashedPassword;
-         existingAdmin.role = "admin";
-         existingAdmin.isActive = true;
-
-         await existingAdmin.save();
-
-         console.log("================================");
-         console.log("✅ Admin Updated Successfully");
-         console.log("User ID: ADM001");
-         console.log("Password: Admin@12345");
-         console.log("Role: admin");
-         console.log("Status: Active");
-         console.log("================================");
-
-         await mongoose.connection.close();
-         process.exit(0);
+         console.log("Admin ADM001 already exists. No changes made.");
+         return;
       }
 
-      // =====================================================
-      // CREATE NEW ADMIN
-      // =====================================================
+      const hashedPassword = await bcrypt.hash(
+         process.env.ADMIN_INITIAL_PASSWORD,
+         12
+      );
 
-      await User.create({
+      const admin = await User.create({
          name: "School Administrator",
          userId: "ADM001",
          password: hashedPassword,
@@ -59,26 +38,15 @@ const seedAdmin = async () => {
          isActive: true,
       });
 
-      console.log("================================");
-      console.log("✅ Admin Created Successfully");
-      console.log("User ID: ADM001");
-      console.log("Password: Admin@12345");
-      console.log("Role: admin");
-      console.log("Status: Active");
-      console.log("================================");
+      console.log("Admin created successfully!");
+      console.log("Admin ID:", admin.userId);
+      console.log("Role:", admin.role);
 
-      await mongoose.connection.close();
-      process.exit(0);
    } catch (error) {
-      console.error("❌ Seed Admin Error:", error);
-
-      try {
-         await mongoose.connection.close();
-      } catch (closeError) {
-         console.error("MongoDB close error:", closeError.message);
-      }
-
-      process.exit(1);
+      console.error("Admin Seed Error:", error);
+      process.exitCode = 1;
+   } finally {
+      await mongoose.disconnect();
    }
 };
 
