@@ -27,25 +27,17 @@ dotenv.config();
 const app = express();
 
 // ==========================================
-// DATABASE
-// ==========================================
-
-connectDB();
-
-// ==========================================
 // MIDDLEWARE
 // ==========================================
 
 app.use(
    cors({
-      origin:
-         process.env.CLIENT_URL || "http://localhost:5173",
+      origin: process.env.CLIENT_URL || "http://localhost:5173",
       credentials: true,
    })
 );
 
 app.use(express.json({ limit: "10mb" }));
-
 app.use(express.urlencoded({ extended: true }));
 
 // ==========================================
@@ -113,17 +105,29 @@ app.use((err, req, res, next) => {
 });
 
 // ==========================================
-// SERVER
+// SERVER START
 // ==========================================
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-   console.log("========================================");
-   console.log("School Management Server Started");
-   console.log(`Server: http://localhost:${PORT}`);
-   console.log(
-      `Client: ${process.env.CLIENT_URL || "http://localhost:5173"}`
-   );
-   console.log("========================================");
-});
+const startServer = async () => {
+   try {
+      await connectDB();
+
+      app.listen(PORT, () => {
+         console.log("========================================");
+         console.log("School Management Server Started 🚀");
+         console.log(`Server: http://localhost:${PORT}`);
+         console.log(
+            `Client: ${process.env.CLIENT_URL || "http://localhost:5173"}`
+         );
+         console.log("MongoDB Connected Successfully");
+         console.log("========================================");
+      });
+   } catch (error) {
+      console.error("❌ Server Startup Error:", error.message);
+      process.exit(1);
+   }
+};
+
+startServer();
