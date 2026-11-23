@@ -32,24 +32,39 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:5173",
+  "https://demo-school-frontend.onrender.com",
   process.env.CLIENT_URL,
-].filter(Boolean);
+]
+  .filter(Boolean)
+  .map((url) => url.trim().replace(/\/+$/, ""));
+
+console.log("Allowed CORS Origins:", allowedOrigins);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
+      // Allow requests without an Origin header
+      if (!origin) {
+        return callback(null, true);
       }
+
+      const normalizedOrigin = origin.trim().replace(/\/+$/, "");
+
+      if (allowedOrigins.includes(normalizedOrigin)) {
+        return callback(null, true);
+      }
+
+      console.error("Blocked CORS Origin:", origin);
+      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
 // ==========================================
-// MIDDLEWARE
+// BODY PARSER
 // ==========================================
 
 app.use(express.json({ limit: "10mb" }));
@@ -98,6 +113,10 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error("SERVER ERROR:", err);
 
+  if (res.headersSent) {
+    return next(err);
+  }
+
   res.status(err.status || 500).json({
     success: false,
     message: err.message || "Internal Server Error",
@@ -118,14 +137,12 @@ const startServer = async () => {
       console.log("========================================");
       console.log("School Management Server Started 🚀");
       console.log(`Server Port: ${PORT}`);
-      console.log(
-        `Client URL: ${process.env.CLIENT_URL || "http://localhost:5173"}`
-      );
       console.log("MongoDB Connected Successfully");
+      console.log("CORS Configuration Ready");
       console.log("========================================");
     });
   } catch (error) {
-    console.error("❌ Server Startup Error:", error.message);
+    console.error("SERVER STARTUP ERROR:", error);
     process.exit(1);
   }
 };
