@@ -8,7 +8,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 const API_URL = (
    import.meta.env.VITE_API_URL || "http://localhost:5000"
-).replace(/\/$/, "");
+).replace(/\/+$/, "").replace(/\/api$/i, "");
 
 const getToken = () => {
    return (
@@ -1146,8 +1146,8 @@ export default function Students() {
                            key={cls}
                            onClick={() => openClass(cls)}
                            className={`student-button rounded-2xl border p-4 text-left ${selectedClass === cls
-                                 ? "border-violet-400/60 bg-violet-500/20"
-                                 : "border-white/10 bg-white/[.035] hover:border-cyan-400/40"
+                              ? "border-violet-400/60 bg-violet-500/20"
+                              : "border-white/10 bg-white/[.035] hover:border-cyan-400/40"
                               }`}
                            style={{ animationDelay: `${index * 30}ms` }}
                         >
@@ -1616,8 +1616,8 @@ export default function Students() {
                                     <td className="px-4 py-5">
                                        <span
                                           className={`rounded-full px-3 py-2 text-[10px] font-black ${isActive
-                                                ? "border border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
-                                                : "border border-orange-400/20 bg-orange-400/10 text-orange-300"
+                                             ? "border border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
+                                             : "border border-orange-400/20 bg-orange-400/10 text-orange-300"
                                              }`}
                                        >
                                           {isActive ? "● Active" : "● Inactive"}

@@ -1,8 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_URL =
-   import.meta.env.VITE_API_URL || "http://localhost:5000";
+// VITE_API_URL may be either the server root or end with /api.
+// Normalize it so endpoint paths below never become /api/api/...
+const API_URL = (
+   import.meta.env.VITE_API_URL || "http://localhost:5000"
+)
+   .replace(/\/+$/, "")
+   .replace(/\/api$/i, "");
 
 /* =========================================================
    OPTIONS
@@ -2928,8 +2933,8 @@ export default function CreateUser() {
 
                      <div className="mt-3 flex flex-wrap items-center gap-2">
                         <span className={`rounded-full px-3 py-1 text-[11px] font-black ${formData.password.length >= 6
-                              ? "bg-emerald-50 text-emerald-700"
-                              : "bg-slate-100 text-slate-500"
+                           ? "bg-emerald-50 text-emerald-700"
+                           : "bg-slate-100 text-slate-500"
                            }`}>
                            {formData.password.length >= 6 ? "✓ Strong enough" : "6+ characters"}
                         </span>
