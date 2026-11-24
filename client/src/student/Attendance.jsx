@@ -2205,4 +2205,3 @@ function AttendanceMobileCard({ item }) {
    );
 
 }
-s
